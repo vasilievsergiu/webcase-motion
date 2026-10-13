@@ -1,0 +1,14 @@
+{
+  "name": "webcase",
+  "description": "Plugin-urile Webcase pentru Claude Code.",
+  "owner": { "name": "Webcase" },
+  "plugins": [
+    {
+      "name": "webcase-motion",
+      "source": "./plugins/webcase-motion",
+      "description": "Animații web în stilul Webcase (GSAP + Lenis): biblioteca, catalogul și regulile, plus comanda /webcase-motion:add.",
+      "version": "1.0.0",
+      "category": "design"
+    }
+  ]
+}

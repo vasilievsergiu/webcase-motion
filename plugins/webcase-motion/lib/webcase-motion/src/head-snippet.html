@@ -1,0 +1,22 @@
+<!--
+  webcase-motion · snippet pentru <head> (pune-l cât mai sus, înaintea CSS-ului).
+  - html.wm-anim    = animațiile pot porni (JS pornit, fără reduced-motion)
+  - html.wm-loading = loader-ul rulează (doar prima vizită din sesiune)
+  Dacă biblioteca nu pornește în 4s, clasele dispar și pagina rămâne vizibilă.
+  Fără loader pe pagină? Șterge rândul cu „wm-loading”.
+-->
+<script>
+  (function () {
+    var d = document.documentElement;
+    try {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      d.classList.add("wm-anim");
+      var seen = false;
+      try { seen = sessionStorage.getItem("wm-loader") === "1"; } catch (e) {}
+      if (!seen) d.classList.add("wm-loading");
+      setTimeout(function () {
+        if (!d.classList.contains("wm-ready")) d.classList.remove("wm-anim", "wm-loading");
+      }, 4000);
+    } catch (e) {}
+  })();
+</script>

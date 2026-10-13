@@ -1,0 +1,42 @@
+{
+  "name": "webcase-motion",
+  "version": "1.0.0",
+  "description": "Animații web reutilizabile (GSAP + Lenis), pornite din atribute HTML: data-motion=\"…\".",
+  "type": "module",
+  "main": "dist/webcase-motion.js",
+  "module": "dist/webcase-motion.js",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./dist/webcase-motion.js",
+    "./src": "./src/index.ts",
+    "./motion.css": "./dist/motion.css"
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "sideEffects": [
+    "*.css",
+    "./src/core/env.ts"
+  ],
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --format=esm --target=es2020 --external:gsap --external:lenis --outfile=dist/webcase-motion.js && cp src/motion.css dist/motion.css && cp src/head-snippet.html dist/head-snippet.html",
+    "typecheck": "tsc --noEmit",
+    "demo": "sh demo/pack.sh && vite demo",
+    "demo:build": "sh demo/pack.sh && vite build demo",
+    "demo:pack": "sh demo/pack.sh"
+  },
+  "peerDependencies": {
+    "gsap": "^3.13.0",
+    "lenis": "^1.3.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.27.7",
+    "gsap": "3.15.0",
+    "lenis": "1.3.26",
+    "typescript": "^5.9.3",
+    "vite": "^6.4.4"
+  },
+  "license": "UNLICENSED"
+}

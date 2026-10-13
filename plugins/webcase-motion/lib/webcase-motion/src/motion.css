@@ -1,0 +1,324 @@
+/* ==========================================================================
+   webcase-motion · stiluri
+   Stările inițiale există DOAR cu `html.wm-anim` (JS pornit, fără
+   reduced-motion); altfel pagina e statică și complet vizibilă.
+   Culorile/dimensiunile se schimbă din variabilele --wm-*.
+   ========================================================================== */
+
+:root {
+  --wm-ease-out: cubic-bezier(0.22, 1, 0.36, 1); /* ≈ expo.out, pentru tranziții CSS */
+  --wm-ease-land: cubic-bezier(0.34, 1.4, 0.64, 1); /* ≈ back.out, cu mic recul */
+  --wm-loader-bg: #0b0b0c;
+  --wm-loader-fg: #fff;
+  --wm-accent: linear-gradient(90deg, #ff4365, #146ef5);
+  --wm-marquee-duration: 28s;
+}
+
+/* ─── Scroll lin (Lenis, doar desktop) ─── */
+html.lenis,
+html.lenis body { height: auto; }
+html.lenis.lenis-smooth { scroll-behavior: auto !important; }
+html.lenis.lenis-stopped { overflow: clip; }
+
+/* ─── Măștile rândurilor (split-lines, intro „lines”) ───
+   SplitText pune overflow:clip exact pe înălțimea rândului → taie diacriticele
+   de sus (Î, â) și codițele de jos (g, ș). Tăiem cu un clip-path extins:
+   zero efect asupra layout-ului, deci textul nu „sare” la final. */
+.wm-line-mask {
+  overflow: visible !important;
+  clip-path: inset(-0.25em -0.2em -0.22em -0.2em);
+}
+
+/* ─── intro: ascuns până pornește (fără flash înainte de JS) ─── */
+html.wm-anim:not(.wm-intro) [data-intro] { visibility: hidden; }
+
+/* ─── loader ─── */
+.wm-loader { display: none; }
+html.wm-loading { overflow: hidden; }
+html.wm-loading .wm-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  color: var(--wm-loader-fg);
+  background-color: var(--wm-loader-bg);
+  /* Ecran complet, fără colțuri; colțurile de jos apar doar cât urcă (din JS). */
+  will-change: transform;
+}
+.wm-loader__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+}
+.wm-loader__tag {
+  padding: 8px 16px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+  border: 1px solid rgb(255 255 255 / 0.25);
+  border-radius: 100px;
+}
+.wm-loader__num {
+  font-size: clamp(96px, 15vw, 220px);
+  font-weight: 600;
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+  font-variant-numeric: tabular-nums;
+}
+.wm-loader__bar {
+  width: 200px;
+  height: 2px;
+  overflow: hidden;
+  background-color: rgb(255 255 255 / 0.15);
+  border-radius: 2px;
+}
+.wm-loader__bar > span {
+  display: block;
+  height: 100%;
+  background: var(--wm-accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+/* ─── rows-wipe (mod „enter”): linia de deasupra rândului se desenează ─── */
+.wm-rows-line > * { position: relative; }
+.wm-rows-line > *::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.15;
+  transform: scaleX(var(--wm-ln, 1));
+  transform-origin: left center;
+}
+
+/* ─── marquee (legat de scroll) ─── */
+.wm-marquee {
+  display: flex;
+  overflow: hidden;
+}
+.wm-marquee__track {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 1.5em;
+  padding-right: 1.5em;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+/* ─── marquee-css (doar CSS) ───
+   Lista e dublată → -50% = buclă perfectă; padding-ul din dreapta = gap-ul,
+   ca jumătățile să fie egale. */
+.wm-marquee-css {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+.wm-marquee-css__track {
+  display: flex;
+  gap: 0 2em;
+  width: max-content;
+  margin: 0;
+  padding: 0.25em 2em 0.25em 0;
+  list-style: none;
+  white-space: nowrap;
+  animation: wm-marquee-run var(--wm-marquee-duration) linear infinite;
+}
+@keyframes wm-marquee-run {
+  to { transform: translateX(-50%); }
+}
+
+/* ─── topbar-glass ─── */
+.wm-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  padding: 0.75em 1em 0;
+  pointer-events: none;
+  transform: translateY(calc(-100% - 1em));
+  transition: transform 450ms var(--wm-ease-out);
+}
+.wm-topbar.is-shown {
+  pointer-events: auto;
+  transform: none;
+}
+.wm-topbar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding: 0.5em 0.5em 0.5em 1.5em;
+  background-color: rgb(255 255 255 / 0.72);
+  border: 1px solid rgb(255 255 255 / 0.6);
+  border-radius: 100em;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  backdrop-filter: blur(16px) saturate(1.4);
+}
+
+/* ─── dots-cursor ─── */
+[data-motion="dots-cursor"] { position: relative; }
+.wm-dots {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  /* Rețeaua se stinge spre margini. */
+  -webkit-mask-image: radial-gradient(ellipse 60% 70% at 50% 55%, #000 30%, transparent 78%);
+  mask-image: radial-gradient(ellipse 60% 70% at 50% 55%, #000 30%, transparent 78%);
+}
+
+/* ─── accordion ─── */
+.wm-acc summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+  cursor: pointer;
+  list-style: none;
+}
+.wm-acc summary::-webkit-details-marker { display: none; }
+.wm-acc__body { overflow: hidden; }
+.wm-acc__icon {
+  position: relative;
+  flex: none;
+  width: 1em;
+  height: 1em;
+}
+.wm-acc__icon::before,
+.wm-acc__icon::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  margin-top: -1px;
+  background: currentColor;
+  border-radius: 2px;
+  transition: transform 400ms var(--wm-ease-out);
+}
+.wm-acc__icon::after { transform: rotate(90deg); }
+.wm-acc[open]:not(.is-closing) .wm-acc__icon::after { transform: rotate(0deg); }
+
+/* ─── countdown: cifrele intră din jos, tăiate de cutie ─── */
+[data-motion="countdown"] [data-cd] {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+}
+.wm-cd-box { overflow: hidden; }
+
+/* ─── slider-tilt ───
+   Slotul (li) face snap și NU se mișcă; doar cardul din el se rotește
+   (transform pe slot → snap-ul se recalculează la infinit). */
+.wm-slider {
+  display: flex;
+  gap: 1.5em;
+  margin: 0;
+  padding: 2em 0;
+  overflow-x: auto;
+  overflow-y: hidden; /* iOS: fără derulare verticală în listă */
+  list-style: none;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.wm-slider::-webkit-scrollbar { display: none; }
+.wm-slide {
+  flex: none;
+  scroll-snap-align: start;
+}
+
+/* ─── horizontal-pin ─── */
+.wm-hp-viewport {
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.wm-hp-viewport::-webkit-scrollbar { display: none; }
+.wm-hp-viewport.is-pinned {
+  overflow: visible;
+  scroll-snap-type: none;
+}
+.wm-hp-track {
+  display: flex;
+  gap: 1.5em;
+  width: max-content;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.wm-hp-track > * { scroll-snap-align: start; }
+[data-hp-fill] {
+  transform: scaleX(var(--p, 0));
+  transform-origin: left center;
+}
+
+/* ─── pin-cards / fly-cards: secțiuni fixate ───
+   ScrollTrigger dă secțiunii fixate lățimea cu tot cu margini → nu pune
+   margin-inline pe ea; inset-ul lateral vine dintr-un border transparent. */
+.wm-pin-sheet {
+  margin-inline: 0;
+  background-clip: padding-box;
+  border-inline: var(--wm-inset, 0px) solid transparent;
+}
+.wm-pin-area { position: relative; }
+
+/* ==========================================================================
+   Hover (doar desktop cu mouse) — „strict ca site-ul”: ridicare 5–6px,
+   înclinare de 1°, fără efect magnetic, fără schimbare de z-index.
+   `translate`/`rotate` separate de transform-ul GSAP; `!important` pentru că
+   GSAP scrie inline `translate/rotate/scale: none` pe ce animă.
+   ========================================================================== */
+@media (min-width: 992px) and (hover: hover) and (pointer: fine) {
+  .wm-hover-lift,
+  .wm-hover-tilt-l,
+  .wm-hover-tilt-r,
+  .wm-hover-straighten {
+    transition: translate 300ms var(--wm-ease-out), rotate 300ms var(--wm-ease-out), box-shadow 300ms ease;
+  }
+  .wm-hover-lift:hover,
+  .wm-hover-tilt-l:hover,
+  .wm-hover-tilt-r:hover { translate: 0 -5px !important; }
+  .wm-hover-tilt-l:hover { rotate: -1deg !important; }
+  .wm-hover-tilt-r:hover { rotate: 1deg !important; }
+  /* Pentru carduri rotite din CSS cu --r: se îndreaptă pe jumătate. */
+  .wm-hover-straighten:hover { translate: 0 -6px !important; rotate: calc(var(--r, 0deg) * -0.5) !important; }
+  .wm-hover-shadow:hover { box-shadow: 0 22px 44px rgba(0, 0, 0, 0.12); }
+
+  /* Buton: umplere puțin mai închisă la hover (ca .btn--primary). */
+  .wm-btn-fill { position: relative; isolation: isolate; overflow: hidden; }
+  .wm-btn-fill::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--wm-btn-shade, #000);
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 240ms ease;
+    pointer-events: none;
+  }
+  .wm-btn-fill:hover::after,
+  .wm-btn-fill:focus-visible::after { opacity: 0.12; }
+}
+
+/* ─── Mișcare redusă: totul static ─── */
+@media (prefers-reduced-motion: reduce) {
+  .wm-marquee-css__track { animation: none; flex-wrap: wrap; width: auto; }
+  .wm-marquee-css { -webkit-mask-image: none; mask-image: none; }
+  .wm-marquee-css__track [aria-hidden="true"] { display: none; }
+  .wm-topbar { transition: none; }
+}
