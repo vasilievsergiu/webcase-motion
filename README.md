@@ -44,7 +44,7 @@ claude plugin install webcase-motion@webcase
    - „Fă din lista de beneficii un rows-wipe cu bife.”
    - „Verifică animațiile pe desktop, tabletă și mobil.”
 
-Lista completă de animații, cu exemple live și prompturi gata de copiat, e pe pagina demo.
+Lista completă de animații, cu exemple live și prompturi gata de copiat, e pe pagina demo: **https://webcase-motion-demo.vercel.app**
 
 ## Actualizare și dezinstalare
 
