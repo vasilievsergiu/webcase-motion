@@ -186,6 +186,105 @@ export function landFromRight(el: HTMLElement) {
     .to(el, { x: 0, rotation: 0, duration: 1, ease: "back.out(1.2)" }, 0.45);
 }
 
+/**
+ * text-swap — o frază care se schimbă singură, în buclă. Literele vechi se
+ * estompează în blur și urcă puțin, apoi cele noi apar din blur, literă cu
+ * literă. Bun pentru 2–4 mesaje scurte, alternative (hero, final de pagină).
+ *   <p data-motion="text-swap" data-wm-lines="Rândul 1|Rândul 2;;Alt mesaj|pe două rânduri">
+ *     Rândul 1<br>Rândul 2
+ *   </p>
+ * Frazele se despart cu ;; iar rândurile unei fraze cu | (textul din HTML
+ * rămâne vizibil fără JS și la mișcare redusă).
+ * Opțiuni: data-wm-lines (frazele), data-wm-interval="4.8" (secunde între schimbări)
+ * Timing aprobat: ieșire 0,42s (18ms între litere), intrare 0,7s (28ms), blur 14px.
+ */
+const SWAP_OUT = "cubic-bezier(0.5, 0, 0.75, 0)"; // accelerează: literele „pleacă”
+const SWAP_IN = "cubic-bezier(0.2, 0.7, 0.1, 1)"; // frânează lin: literele „se așază”
+
+export function textSwap(el: HTMLElement) {
+  const phrases = opt(el, "lines", "")
+    .split(";;")
+    .map((p) => p.split("|").map((r) => r.trim()))
+    .filter((p) => p.join("").length);
+  if (phrases.length < 2) return;
+  const interval = opt(el, "interval", 4.8) * 1000;
+
+  /* Cuvinte nedivizibile (nowrap), fiecare literă într-un span animabil. */
+  const render = (rows: string[]) => {
+    el.replaceChildren();
+    const chars: HTMLElement[] = [];
+    rows.forEach((row, r) => {
+      row.split(/\s+/).forEach((word, wi, words) => {
+        const w = document.createElement("span");
+        w.className = "wm-swap-w";
+        for (const c of word) {
+          const s = document.createElement("span");
+          s.className = "wm-swap-ch";
+          s.textContent = c;
+          w.append(s);
+          chars.push(s);
+        }
+        el.append(w);
+        if (wi < words.length - 1) el.append(" ");
+      });
+      if (r < rows.length - 1) el.append(document.createElement("br"));
+    });
+    el.setAttribute("aria-label", rows.join(" "));
+    return chars;
+  };
+
+  /* Înălțimea celei mai înalte fraze, ca pagina să nu sară la schimbare. */
+  const reserve = () => {
+    el.style.minHeight = "";
+    let h = 0;
+    phrases.forEach((p) => {
+      render(p);
+      h = Math.max(h, el.offsetHeight);
+    });
+    el.style.minHeight = `${h}px`;
+  };
+
+  let i = 0;
+  reserve();
+  let chars = render(phrases[0]);
+  addEventListener("resize", () => {
+    reserve();
+    chars = render(phrases[i]);
+  });
+
+  const hidden = { opacity: 0, filter: "blur(14px)", transform: "translateY(0.12em)" };
+  const shown = { opacity: 1, filter: "blur(0px)", transform: "none" };
+  let busy = false;
+  const next = async () => {
+    if (busy || document.hidden) return;
+    busy = true;
+    await Promise.all(
+      chars.map(
+        (c, k) =>
+          c.animate([shown, { ...hidden, transform: "translateY(-0.12em)" }], {
+            duration: 420,
+            delay: k * 18,
+            easing: SWAP_OUT,
+            fill: "forwards",
+          }).finished,
+      ),
+    );
+    i = (i + 1) % phrases.length;
+    chars = render(phrases[i]);
+    chars.forEach((c, k) =>
+      c.animate([hidden, shown], { duration: 700, delay: k * 28, easing: SWAP_IN, fill: "backwards" }),
+    );
+    busy = false;
+  };
+
+  /* Rulează doar cât fraza e în ecran. */
+  let timer = 0;
+  new IntersectionObserver(([e]) => {
+    clearInterval(timer);
+    if (e.isIntersecting) timer = window.setInterval(next, interval);
+  }).observe(el);
+}
+
 /** Pentru elementele marcate pe pagină. */
 export function initText(scope: ParentNode = document) {
   $$("[data-motion='split-lines']", scope).forEach(splitLines);
@@ -194,5 +293,6 @@ export function initText(scope: ParentNode = document) {
   revealWipe($$("[data-motion='reveal-wipe']", scope));
   $$("[data-motion='rows-wipe']", scope).forEach(rowsWipe);
   $$("[data-motion='land-from-right']", scope).forEach(landFromRight);
+  $$("[data-motion='text-swap']", scope).forEach(textSwap);
 }
 

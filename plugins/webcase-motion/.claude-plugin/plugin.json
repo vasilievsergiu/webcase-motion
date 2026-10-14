@@ -1,7 +1,7 @@
 {
   "name": "webcase-motion",
   "displayName": "webcase-motion",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Animații web în stilul Webcase (GSAP + ScrollTrigger + SplitText + Lenis). Conține biblioteca, catalogul de animații cu timing-ul aprobat și comanda /webcase-motion:add, care o adaugă într-un proiect.",
   "author": { "name": "Webcase" },
   "keywords": ["animation", "gsap", "lenis", "motion", "scroll", "webcase"]

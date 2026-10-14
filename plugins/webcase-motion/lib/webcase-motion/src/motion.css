@@ -97,6 +97,10 @@ html.wm-loading .wm-loader {
   transform-origin: left center;
 }
 
+/* ─── text-swap: cuvinte întregi pe rând, litere animabile ─── */
+.wm-swap-w { display: inline-block; white-space: nowrap; }
+.wm-swap-ch { display: inline-block; }
+
 /* ─── marquee (legat de scroll) ─── */
 .wm-marquee {
   display: flex;

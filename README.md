@@ -4,7 +4,7 @@ Animații web în stilul Webcase, folosite direct din Claude Code. Nu scrii cod:
 
 ## Ce primești
 
-- **Biblioteca** de animații: 24 de animații și 6 efecte de hover.
+- **Biblioteca** de animații: 25 de animații și 6 efecte de hover.
 - **Skill-ul `webcase-motion`**: Claude cunoaște catalogul, timing-ul aprobat și regulile (fără fade, hover discret, maximum 1–2 efecte „wow” pe pagină).
 - **Comanda `/webcase-motion:add`**: adaugă biblioteca într-un proiect, cu tot ce trebuie configurat.
 

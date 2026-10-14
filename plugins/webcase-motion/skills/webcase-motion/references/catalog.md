@@ -75,6 +75,21 @@ Un cuvânt vine din dreapta, puțin rotit, și aterizează lângă textul de din
 
 - **Opțiuni:** `data-wm-rotate="8"`.
 
+### `text-swap`
+
+O frază care se schimbă singură, în buclă. Literele vechi se estompează în blur și urcă puțin, apoi cele noi apar din blur, literă cu literă. Se folosește pentru 2–4 mesaje scurte, alternative, de exemplu în primul ecran sau la finalul paginii.
+
+```html
+<p data-motion="text-swap" data-wm-lines="Design care se|înțelege din prima.;;Mișcare care|ghidează privirea.">
+  Design care se<br>înțelege din prima.
+</p>
+```
+
+- **Opțiuni:** `data-wm-lines`, adică frazele: se despart cu `;;`, iar rândurile unei fraze cu `|`. Apoi `data-wm-interval="4.8"`, adică secundele dintre schimbări.
+- Textul scris în HTML (prima frază) rămâne vizibil fără JS și la mișcare redusă.
+- Rulează doar cât fraza e pe ecran. Cuvintele nu se rup la mijloc.
+- **Timing:** ieșire 0,42s, cu 18ms între litere; intrare 0,7s, cu 28ms între litere; blur 14px.
+
 ---
 
 ## Intrarea primului ecran — `data-intro`

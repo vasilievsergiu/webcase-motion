@@ -15,12 +15,15 @@ Valorile de mai jos sunt cele aprobate după testare pe desktop și iPhone. Nu l
 | — | `expo.inOut` | foaia loader-ului care urcă |
 | — | `sine.inOut` | plutire în buclă |
 | CSS | `cubic-bezier(0.22, 1, 0.36, 1)` | tranziții CSS (hover, topbar, countdown) |
+| CSS | `cubic-bezier(0.5, 0, 0.75, 0)` | `text-swap`: literele care pleacă (accelerează) |
+| CSS | `cubic-bezier(0.2, 0.7, 0.1, 1)` | `text-swap`: literele care se așază (frânează lin) |
 
 ## Durate
 - Text: 0,8s (`reveal-wipe`) · 0,9s (`split-lines`) · 1s (H1 în intro); stagger între rânduri 0,1s.
 - Carduri: 0,9–1,1s; stagger 0,07–0,08s.
 - Hover: 300ms CSS (ridicare/înclinare) · 550ms GSAP (fan).
 - Accordion 0,4s · topbar 450ms · cifre countdown 380ms.
+- `text-swap`: ieșire 0,42s (18ms între litere) → intrare 0,7s (28ms între litere) · schimbare la 4,8s · blur 14px, ±0,12em pe verticală.
 - Loader: numărătoare 0,65s → conținutul iese la 0,7s (0,35s) → foaia urcă la 0,8s (0,8s) → intrarea paginii pornește la **1,3s** (după ce foaia a trecut de titlu, altfel titlul se animă sub loader).
 
 ## Când pornesc (ScrollTrigger)

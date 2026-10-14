@@ -179,6 +179,79 @@ function landFromRight(el) {
   gsap.set(el, { x: () => window.innerWidth * 0.6, rotation: rot });
   gsap.timeline({ scrollTrigger: { trigger: host, start: "top 80%", once: true } }).to(leadWrap ?? {}, { ...WIPE_UP_TO, duration: 0.9, ease: EXPO }).to(el, { x: 0, rotation: 0, duration: 1, ease: "back.out(1.2)" }, 0.45);
 }
+var SWAP_OUT = "cubic-bezier(0.5, 0, 0.75, 0)";
+var SWAP_IN = "cubic-bezier(0.2, 0.7, 0.1, 1)";
+function textSwap(el) {
+  const phrases = opt(el, "lines", "").split(";;").map((p) => p.split("|").map((r) => r.trim())).filter((p) => p.join("").length);
+  if (phrases.length < 2) return;
+  const interval = opt(el, "interval", 4.8) * 1e3;
+  const render = (rows) => {
+    el.replaceChildren();
+    const chars2 = [];
+    rows.forEach((row, r) => {
+      row.split(/\s+/).forEach((word, wi, words) => {
+        const w = document.createElement("span");
+        w.className = "wm-swap-w";
+        for (const c of word) {
+          const s = document.createElement("span");
+          s.className = "wm-swap-ch";
+          s.textContent = c;
+          w.append(s);
+          chars2.push(s);
+        }
+        el.append(w);
+        if (wi < words.length - 1) el.append(" ");
+      });
+      if (r < rows.length - 1) el.append(document.createElement("br"));
+    });
+    el.setAttribute("aria-label", rows.join(" "));
+    return chars2;
+  };
+  const reserve = () => {
+    el.style.minHeight = "";
+    let h = 0;
+    phrases.forEach((p) => {
+      render(p);
+      h = Math.max(h, el.offsetHeight);
+    });
+    el.style.minHeight = `${h}px`;
+  };
+  let i = 0;
+  reserve();
+  let chars = render(phrases[0]);
+  addEventListener("resize", () => {
+    reserve();
+    chars = render(phrases[i]);
+  });
+  const hidden = { opacity: 0, filter: "blur(14px)", transform: "translateY(0.12em)" };
+  const shown = { opacity: 1, filter: "blur(0px)", transform: "none" };
+  let busy = false;
+  const next = async () => {
+    if (busy || document.hidden) return;
+    busy = true;
+    await Promise.all(
+      chars.map(
+        (c, k) => c.animate([shown, { ...hidden, transform: "translateY(-0.12em)" }], {
+          duration: 420,
+          delay: k * 18,
+          easing: SWAP_OUT,
+          fill: "forwards"
+        }).finished
+      )
+    );
+    i = (i + 1) % phrases.length;
+    chars = render(phrases[i]);
+    chars.forEach(
+      (c, k) => c.animate([hidden, shown], { duration: 700, delay: k * 28, easing: SWAP_IN, fill: "backwards" })
+    );
+    busy = false;
+  };
+  let timer = 0;
+  new IntersectionObserver(([e]) => {
+    clearInterval(timer);
+    if (e.isIntersecting) timer = window.setInterval(next, interval);
+  }).observe(el);
+}
 function initText(scope = document) {
   $$("[data-motion='split-lines']", scope).forEach(splitLines);
   $$("[data-motion='split-sides']", scope).forEach(splitSides);
@@ -186,6 +259,7 @@ function initText(scope = document) {
   revealWipe($$("[data-motion='reveal-wipe']", scope));
   $$("[data-motion='rows-wipe']", scope).forEach(rowsWipe);
   $$("[data-motion='land-from-right']", scope).forEach(landFromRight);
+  $$("[data-motion='text-swap']", scope).forEach(textSwap);
 }
 
 // src/motions/cards.ts
@@ -908,6 +982,7 @@ export {
   smoothScroll,
   splitLines,
   splitSides,
+  textSwap,
   topbarGlass,
   wordsScrub
 };

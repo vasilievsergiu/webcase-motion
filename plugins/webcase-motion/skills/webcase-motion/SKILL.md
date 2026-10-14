@@ -31,6 +31,7 @@ Răspunde utilizatorului în limba lui (de obicei română). Numele animațiilor
 | Subtitlu, buton, bloc mic | `reveal-wipe` |
 | Listă de beneficii / pași / „ce intră” | `rows-wipe` (`enter` pentru liste cu bife) |
 | Replică scurtă la final de titlu | `land-from-right` |
+| 2–4 mesaje scurte care se schimbă singure | `text-swap` |
 | Primul ecran | `data-intro` (drop / rise / lines / lift / pop) |
 | Imagine + carduri în jur | `fan` |
 | Rezultate / proiecte într-un rând | `slider-tilt` |
@@ -43,7 +44,7 @@ Răspunde utilizatorului în limba lui (de obicei română). Numele animațiilor
 | Ofertă cu termen real | `countdown` (doar cu termen REAL) |
 
 ## Reguli de neîncălcat
-- **Fără fade la apariții.** Elementele apar din mască (clip-path) sau din mișcare. Opacitate doar la: loader, intrarea primului ecran, `words-scrub`, începutul `split-sides`.
+- **Fără fade la apariții.** Elementele apar din mască (clip-path) sau din mișcare. Opacitate doar la: loader, intrarea primului ecran, `words-scrub`, începutul `split-sides`, schimbarea literelor din `text-swap` (e o înlocuire, nu o apariție).
 - **Hover strict ca site-ul:** doar desktop cu mouse, ridicare 5–6px, înclinare ~1°, umbră discretă. Fără efect magnetic, fără să schimbi z-index-ul (niciun card nu trece peste altul).
 - **Reduced-motion = static.** Totul vizibil fără JS și fără animații; stările ascunse există doar sub `html.wm-anim`.
 - **Animă doar `transform`, `opacity`, `clip-path`** (excepție: înălțimea la accordion).
