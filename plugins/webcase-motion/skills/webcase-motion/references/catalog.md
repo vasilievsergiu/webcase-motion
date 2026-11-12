@@ -183,6 +183,61 @@ Markup-ul e ca la `pin-cards`, cu `data-fly-area`. Un card cu `data-fly-accent` 
 </section>
 ```
 
+### `title-pass`
+
+Un titlu foarte mare stă fix pe centrul ecranului (sticky, fără pin), iar cardurile urcă peste el, fiecare cu altă viteză. Se folosește pentru o listă scurtă de rezultate sau beneficii, de 3 până la 5 carduri.
+
+```html
+<section data-motion="title-pass">
+  <div data-tp-title><h2>Ce rămâne la tine</h2></div>
+  <ul data-tp-cards>
+    <li data-tp-card data-depth="0.6"> … </li>
+    <li data-tp-card data-depth="1.2"> … </li>
+  </ul>
+</section>
+```
+
+- **Desktop:** cardurile stau în zigzag pe o grilă de 12 coloane, fiecare pe rândul lui.
+- **Mobil:** cardurile alternează stânga și dreapta și se mișcă mai puțin.
+- **Opțiuni:** `data-depth="1"` pe fiecare card (viteza relativă); `data-wm-k="90"` (desktop) și `data-wm-k-mobile="30"`. Cardul urcă de la `+depth × k` la `−depth × k` px.
+- Cardurile au nevoie de fundal opac, ca titlul să nu se citească prin ele.
+- Niciun părinte cu `overflow: hidden` sau `auto`: strică sticky. Folosește `overflow: clip`.
+
+### `stack-cards`
+
+Carduri mari care se lipesc pe rând de partea de sus a ecranului și se stivuiesc. Cardul de dedesubt se micșorează puțin cât urcă următorul. Merge bine pentru 3 proiecte sau 3 pași mari.
+
+```html
+<div data-motion="stack-cards">
+  <article data-stack-card> … </article>
+  <article data-stack-card> … </article>
+  <article data-stack-card> … </article>
+</div>
+```
+
+- **Opțiuni:** `data-wm-scale="0.93"` (cât se micșorează), `data-wm-top="16"` și `data-wm-step="10"`, adică `top` în trepte: 16px + i × 10px.
+- Pe ecrane joase (înălțime ≤ 480px, de exemplu telefon în landscape) cardurile rămân statice, fără micșorare.
+- Fiecare card are nevoie de o înălțime clară (de exemplu `min(70vh, 560px)`) și de fundal opac.
+
+---
+
+## Imagini
+
+### `cross-reveal`
+
+La scroll, un cursor de Figma trage o cruce din stânga sus spre dreapta jos. Imaginea se dezvăluie după cruce și se micșorează de la 1,7 la 1. La final, crucea dispare. Se folosește pentru o poză importantă: portret, studiu de caz, macheta unui proiect.
+
+```html
+<figure data-motion="cross-reveal">
+  <img src="…" alt="…">
+</figure>
+```
+
+- **Opțiuni:** `data-wm-gap="16"` (spațiul de la margine, în px), `data-wm-zoom="1.7"` (mărimea de pornire), `data-wm-start="top 88%"`, `data-wm-end="top 26%"`.
+- **Culori:** `--wm-xr-cursor` (cursorul, implicit `#ff4365`) și `--wm-xr-line` (liniile crucii).
+- Se mărește primul copil sau elementul cu `data-xr-zoom`.
+- Fără JS sau la mișcare redusă, imaginea se vede direct.
+
 ---
 
 ## Interfață

@@ -1,6 +1,7 @@
 import { ScrollTrigger, root } from "./core/env";
 import { initText } from "./motions/text";
 import { initCards } from "./motions/cards";
+import { initMedia } from "./motions/media";
 import { initUi, loader, smoothScroll } from "./motions/ui";
 import { intro } from "./motions/intro";
 
@@ -8,6 +9,7 @@ export * from "./core/tokens";
 export { gsap, ScrollTrigger, SplitText, reduced } from "./core/env";
 export * from "./motions/text";
 export * from "./motions/cards";
+export * from "./motions/media";
 export * from "./motions/ui";
 export { intro } from "./motions/intro";
 
@@ -38,6 +40,7 @@ export async function initMotion(opts: MotionOptions = {}) {
     intro();
     initText();
     initCards();
+    initMedia();
     window.addEventListener("load", () => ScrollTrigger.refresh());
   } catch (err) {
     /* Orice eroare: pagina rămâne vizibilă, statică. */

@@ -280,6 +280,92 @@ html.wm-loading .wm-loader {
 }
 .wm-pin-area { position: relative; }
 
+/* ─── cross-reveal: cruce + cursor de Figma (generate din JS) ───
+   Fără JS sau la mișcare redusă conținutul se vede direct, fără mască. */
+.wm-xr-host { position: relative; overflow: hidden; }
+.wm-xr-clip { overflow: hidden; }
+.wm-xr-zoom { transform-origin: 50% 30%; }
+.wm-xr {
+  --wm-xr-line: rgba(14, 14, 14, 0.45);
+  --wm-xr-cursor: #ff4365;
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  overflow: hidden;
+  pointer-events: none;
+}
+.wm-xr__vf, .wm-xr__v { position: absolute; top: 0; bottom: 0; left: 0; width: 1px; background: var(--wm-xr-line); }
+.wm-xr__hf, .wm-xr__h { position: absolute; left: 0; right: 0; top: 0; height: 1px; background: var(--wm-xr-line); }
+.wm-xr__vf { left: var(--gap); }
+.wm-xr__hf { top: var(--gap); }
+.wm-xr__c {
+  position: absolute;
+  left: -3px;
+  top: -2px;
+  width: 20px;
+  height: 20px;
+  overflow: visible;
+  fill: var(--wm-xr-cursor);
+  stroke: #fff;
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+}
+
+/* ─── title-pass: titlu sticky, carduri care trec peste el ───
+   Doar cu animații pornite; altfel titlul și cardurile stau unul sub altul.
+   Niciun părinte cu overflow: hidden/auto (strică sticky): folosește overflow: clip. */
+html.wm-anim [data-motion="title-pass"] { position: relative; }
+html.wm-anim [data-tp-title] {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  height: 100vh;
+  height: 100svh;
+  pointer-events: none;
+}
+html.wm-anim [data-tp-cards] {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: 16svh;
+  /* Doar marginea de sus: centrarea (margin-inline) rămâne a proiectului. */
+  margin-top: -100vh;
+  margin-top: -100svh;
+  margin-bottom: 0;
+  padding-block: 72svh 26svh;
+  list-style: none;
+}
+html.wm-anim [data-tp-card] { align-self: start; width: min(86%, 380px); }
+html.wm-anim [data-tp-card]:nth-child(even) { justify-self: end; }
+@media (min-width: 992px) {
+  /* Zigzag pe 12 coloane, fiecare card pe rândul lui (--wm-tp-row vine din JS). */
+  html.wm-anim [data-tp-cards] {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 22svh 24px;
+    padding-block: 78svh 30svh;
+  }
+  html.wm-anim [data-tp-card] { grid-row: var(--wm-tp-row, auto); width: auto; justify-self: stretch; }
+  html.wm-anim [data-tp-card]:nth-child(5n + 1) { grid-column: 2 / 6; }
+  html.wm-anim [data-tp-card]:nth-child(5n + 2) { grid-column: 8 / 12; }
+  html.wm-anim [data-tp-card]:nth-child(5n + 3) { grid-column: 4 / 8; }
+  html.wm-anim [data-tp-card]:nth-child(5n + 4) { grid-column: 8 / 12; }
+  html.wm-anim [data-tp-card]:nth-child(5n + 5) { grid-column: 2 / 6; }
+}
+
+/* ─── stack-cards: carduri sticky în trepte (top vine din JS: 16px + i·10px) ───
+   Pe ecrane joase (telefon în landscape) rămân statice, ca nimic să nu se blocheze. */
+html.wm-anim [data-stack-card] {
+  position: sticky;
+  top: var(--wm-stack-top, 16px);
+  transform-origin: center top;
+}
+@media (max-height: 480px) {
+  html.wm-anim [data-stack-card] { position: static; }
+}
+
 /* ==========================================================================
    Hover (doar desktop cu mouse) — „strict ca site-ul”: ridicare 5–6px,
    înclinare de 1°, fără efect magnetic, fără schimbare de z-index.

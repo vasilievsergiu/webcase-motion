@@ -17,7 +17,7 @@ Răspunde utilizatorului în limba lui (de obicei română). Numele animațiilor
 1. **Verifică dacă proiectul are deja biblioteca** `webcase-motion` (import din `webcase-motion` sau un folder copiat). Dacă da → folosește atributele `data-motion` / `data-intro` din [references/catalog.md](references/catalog.md). Nu reinventa.
 2. Dacă nu o are și utilizatorul vrea animații: adaug-o întâi. Cu plugin-ul `webcase-motion` instalat, folosește skill-ul `add` (comanda `/webcase-motion:add`), care instalează și configurează totul. Fără plugin: gsap + lenis + biblioteca, după README-ul ei, sau cod GSAP **după aceleași reguli și același timing** ([references/timing.md](references/timing.md)).
 3. **Întreabă înainte** de lucrurile care schimbă experiența: loader (da/nu), scroll lin, secțiuni fixate (pin). Restul (apariții, hover discret) le poți propune direct.
-4. Alege animația după rol, nu după efect (tabelul de mai jos). Maximum 1–2 animații „wow” pe pagină (fan, fly-cards, pin); restul simple.
+4. Alege animația după rol, nu după efect (tabelul de mai jos). Maximum 1–2 animații „wow” pe pagină (fan, fly-cards, pin-cards, horizontal-pin, title-pass, stack-cards); restul simple.
 5. Aplică regulile din [references/gotchas.md](references/gotchas.md) — sunt bug-uri reale deja rezolvate (iPhone, Safari, pin în flex, SplitText).
 6. **Verifică** în browser: desktop 1440, tabletă 834, mobil 390. Derulează toată pagina; caută: text tăiat, cuvânt singur pe ultimul rând, scroll orizontal, carduri care sar, elemente care rămân ascunse. Ține minte: în panoul de preview rAF îngheață între comenzi — o captură „ciudată” poate fi doar mijlocul animației.
 
@@ -37,6 +37,9 @@ Răspunde utilizatorului în limba lui (de obicei română). Numele animațiilor
 | Rezultate / proiecte într-un rând | `slider-tilt` |
 | 3–5 carduri care „se adună” | `pin-cards` (calm) sau `fly-cards` (energic) |
 | Pași / proces / roadmap | `horizontal-pin` |
+| Titlu mare + 3–5 carduri cu rezultate | `title-pass` |
+| 3 proiecte sau pași mari, unul peste altul | `stack-cards` |
+| O poză importantă (portret, studiu de caz) | `cross-reveal` |
 | Fapte scurte, logo-uri | `marquee` (la scroll) sau `marquee-css` (mobil) |
 | Navigație pe pagini lungi | `topbar-glass` |
 | CTA final, fundal închis | `dots-cursor` |

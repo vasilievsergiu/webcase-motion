@@ -571,6 +571,39 @@ function horizontalPin(sec) {
     });
   }
 }
+function titlePass(sec) {
+  const cards = $$("[data-tp-card]", sec);
+  if (!cards.length) return;
+  const k = mq(DESKTOP) ? opt(sec, "k", 90) : opt(sec, "k-mobile", 30);
+  cards.forEach((card, i) => {
+    card.style.setProperty("--wm-tp-row", String(i + 1));
+    const d = Number(card.dataset.depth || 1);
+    gsap.fromTo(
+      card,
+      { y: d * k },
+      { y: -d * k, ease: "none", scrollTrigger: { trigger: card, start: "top bottom", end: "bottom top", scrub: true } }
+    );
+  });
+}
+var SHORT_SCREEN = "(max-height: 480px)";
+function stackCards(box) {
+  const cards = $$("[data-stack-card]", box);
+  if (!cards.length) return;
+  const top = opt(box, "top", 16);
+  const step = opt(box, "step", 10);
+  const scale = opt(box, "scale", 0.93);
+  cards.forEach((c, i) => c.style.setProperty("--wm-stack-top", `${top + i * step}px`));
+  if (mq(SHORT_SCREEN)) return;
+  cards.forEach((card, i) => {
+    const next = cards[i + 1];
+    if (!next) return;
+    gsap.to(card, {
+      scale,
+      ease: "none",
+      scrollTrigger: { trigger: next, start: "top bottom", end: "top 15%", scrub: true }
+    });
+  });
+}
 function initCards(scope = document) {
   $$("[data-motion='fan']", scope).forEach(fan);
   $$("[data-motion='fan-hover']", scope).forEach((el) => mq(POINTER) && fanHover(el));
@@ -579,6 +612,61 @@ function initCards(scope = document) {
   $$("[data-motion='pin-cards']", scope).forEach(pinCards);
   $$("[data-motion='fly-cards']", scope).forEach(flyCards);
   $$("[data-motion='horizontal-pin']", scope).forEach(horizontalPin);
+  $$("[data-motion='title-pass']", scope).forEach(titlePass);
+  $$("[data-motion='stack-cards']", scope).forEach(stackCards);
+}
+
+// src/motions/media.ts
+function crossReveal(box) {
+  if (box.querySelector(":scope > .wm-xr")) return;
+  const gap = opt(box, "gap", 16);
+  const zoom = opt(box, "zoom", 1.7);
+  const clip = document.createElement("div");
+  clip.className = "wm-xr-clip";
+  clip.append(...Array.from(box.childNodes));
+  box.append(clip);
+  box.classList.add("wm-xr-host");
+  const ui = document.createElement("div");
+  ui.className = "wm-xr";
+  ui.setAttribute("aria-hidden", "true");
+  ui.style.setProperty("--gap", `${gap}px`);
+  ui.innerHTML = '<i class="wm-xr__vf"></i><i class="wm-xr__hf"></i><i class="wm-xr__v"></i><i class="wm-xr__h"></i><svg class="wm-xr__c" viewBox="0 0 20 20"><path d="M2.5 2 18 8.4l-7.1 2.5L8.4 18z" /></svg>';
+  box.append(ui);
+  const v = ui.querySelector(".wm-xr__v");
+  const h = ui.querySelector(".wm-xr__h");
+  const cursor = ui.querySelector(".wm-xr__c");
+  const media = clip.querySelector("[data-xr-zoom]") ?? clip.firstElementChild;
+  media?.classList.add("wm-xr-zoom");
+  const state = { p: 0 };
+  const draw = () => {
+    const w = box.clientWidth;
+    const ht = box.clientHeight;
+    const x = gap + (w - gap) * state.p;
+    const y = gap + (ht - gap) * state.p;
+    const o = gap * (1 - state.p);
+    clip.style.clipPath = state.p >= 0.995 ? "none" : `inset(${o}px ${Math.max(0, w - x)}px ${Math.max(0, ht - y)}px ${o}px)`;
+    v.style.transform = `translate3d(${x}px, 0, 0)`;
+    h.style.transform = `translate3d(0, ${y}px, 0)`;
+    cursor.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+    ui.style.opacity = state.p > 0.92 ? String((1 - state.p) / 0.08) : "1";
+    if (media) media.style.transform = `scale(${zoom - (zoom - 1) * state.p})`;
+  };
+  draw();
+  gsap.to(state, {
+    p: 1,
+    ease: "none",
+    onUpdate: draw,
+    scrollTrigger: {
+      trigger: box,
+      start: opt(box, "start", "top 88%"),
+      end: opt(box, "end", "top 26%"),
+      scrub: 0.4,
+      onRefresh: draw
+    }
+  });
+}
+function initMedia(scope = document) {
+  $$("[data-motion='cross-reveal']", scope).forEach(crossReveal);
 }
 
 // src/motions/ui.ts
@@ -936,6 +1024,7 @@ async function initMotion(opts = {}) {
     intro();
     initText();
     initCards();
+    initMedia();
     window.addEventListener("load", () => ScrollTrigger.refresh());
   } catch (err) {
     console.error(err);
@@ -949,6 +1038,7 @@ export {
   EXPO,
   LAND,
   POINTER,
+  SHORT_SCREEN,
   ScrollTrigger,
   SplitText,
   WIPE_LR,
@@ -957,6 +1047,7 @@ export {
   WIPE_UP_TO,
   accordion,
   countdown,
+  crossReveal,
   dotsCursor,
   fan,
   fanEmerge,
@@ -966,6 +1057,7 @@ export {
   gsap,
   horizontalPin,
   initCards,
+  initMedia,
   initMotion,
   initText,
   initUi,
@@ -982,7 +1074,9 @@ export {
   smoothScroll,
   splitLines,
   splitSides,
+  stackCards,
   textSwap,
+  titlePass,
   topbarGlass,
   wordsScrub
 };

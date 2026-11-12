@@ -397,6 +397,62 @@ export function horizontalPin(sec: HTMLElement) {
   }
 }
 
+/* ──────────────────────────── title-pass ────────────────────────────
+ * <section data-motion="title-pass">
+ *   <div data-tp-title> <h2>Titlu mare</h2> </div>            ← stă sticky pe centrul ecranului
+ *   <ul data-tp-cards> <li data-tp-card data-depth="0.6"> … </li> … </ul>
+ * </section>
+ * Titlul uriaș stă fix (sticky, fără pin), iar cardurile urcă peste el cu
+ * viteze diferite: y de la +depth·k la −depth·k, legat de scroll.
+ * Pe desktop cardurile stau în zigzag pe o grilă de 12 coloane (motion.css).
+ * Opțiuni: data-depth="1" (pe card), data-wm-k="90" (desktop), data-wm-k-mobile="30"
+ */
+export function titlePass(sec: HTMLElement) {
+  const cards = $$("[data-tp-card]", sec);
+  if (!cards.length) return;
+  const k = mq(DESKTOP) ? opt(sec, "k", 90) : opt(sec, "k-mobile", 30);
+  cards.forEach((card, i) => {
+    /* Fiecare card pe rândul lui în grila de pe desktop. */
+    card.style.setProperty("--wm-tp-row", String(i + 1));
+    const d = Number(card.dataset.depth || 1);
+    gsap.fromTo(
+      card,
+      { y: d * k },
+      { y: -d * k, ease: "none", scrollTrigger: { trigger: card, start: "top bottom", end: "bottom top", scrub: true } },
+    );
+  });
+}
+
+/* ──────────────────────────── stack-cards ────────────────────────────
+ * <div data-motion="stack-cards">
+ *   <article data-stack-card> … </article> × 3
+ * </div>
+ * Fiecare card e sticky, cu top în trepte (16px + i·10px); cel de dedesubt
+ * se micșorează la 0,93 cât urcă următorul. Pe ecrane joase (≤ 480px
+ * înălțime, de ex. telefon în landscape) cardurile rămân statice.
+ * Opțiuni: data-wm-scale="0.93" data-wm-top="16" data-wm-step="10" (px)
+ */
+export const SHORT_SCREEN = "(max-height: 480px)";
+
+export function stackCards(box: HTMLElement) {
+  const cards = $$("[data-stack-card]", box);
+  if (!cards.length) return;
+  const top = opt(box, "top", 16);
+  const step = opt(box, "step", 10);
+  const scale = opt(box, "scale", 0.93);
+  cards.forEach((c, i) => c.style.setProperty("--wm-stack-top", `${top + i * step}px`));
+  if (mq(SHORT_SCREEN)) return;
+  cards.forEach((card, i) => {
+    const next = cards[i + 1];
+    if (!next) return;
+    gsap.to(card, {
+      scale,
+      ease: "none",
+      scrollTrigger: { trigger: next, start: "top bottom", end: "top 15%", scrub: true },
+    });
+  });
+}
+
 export function initCards(scope: ParentNode = document) {
   $$("[data-motion='fan']", scope).forEach(fan);
   $$("[data-motion='fan-hover']", scope).forEach((el) => mq(POINTER) && fanHover(el));
@@ -405,5 +461,7 @@ export function initCards(scope: ParentNode = document) {
   $$("[data-motion='pin-cards']", scope).forEach(pinCards);
   $$("[data-motion='fly-cards']", scope).forEach(flyCards);
   $$("[data-motion='horizontal-pin']", scope).forEach(horizontalPin);
+  $$("[data-motion='title-pass']", scope).forEach(titlePass);
+  $$("[data-motion='stack-cards']", scope).forEach(stackCards);
 }
 

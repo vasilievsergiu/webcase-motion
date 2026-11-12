@@ -16,6 +16,8 @@ Fiecare punct de mai jos a fost un bug real, văzut pe iPhone sau desktop.
 9. `ScrollTrigger.config({ ignoreMobileResize: true })` — altfel bara de adresă de pe iPhone recalculează pin-urile și secțiunile sar.
 10. `ScrollTrigger.refresh()` la `window.load` (imaginile schimbă înălțimile).
 11. Titluri care vin din lateral (`split-sides`) → `overflow: clip` pe secțiune, altfel apare scroll orizontal.
+11a. **Sticky (`title-pass`, `stack-cards`) nu merge** dacă un părinte are `overflow: hidden` sau `auto`. Folosește `overflow: clip`, care taie la fel, dar nu creează un container de scroll.
+11b. **Cardurile sticky pe ecrane joase** (telefon în landscape, înălțime ≤ 480px) acoperă tot ecranul și blochează citirea: `stack-cards` le lasă statice acolo.
 
 ## Slidere
 12. **Scroll-snap + transform pe slotul de snap = buclă infinită** (sliderul „se mișcă singur la nesfârșit”). Slotul (`li`) face snap și nu se mișcă; transformi doar cardul din interior.

@@ -39,6 +39,9 @@ Valorile de mai jos sunt cele aprobate după testare pe desktop și iPhone. Nu l
 | `pin-cards` mobil | `top 90%` / `top 84%` | `top 50%` / `top 42%` | 0.6 |
 | `fly-cards` desktop | primul card `top 95%`→`center center`, restul fixat | +1,8 ecrane | 0.6 |
 | `fly-cards` mobil | `top 90%` | `top 30%` | 0.8 |
+| `cross-reveal` | `top 88%` | `top 26%` | 0.4 |
+| `title-pass` (fiecare card) | `top bottom` | `bottom top` | true |
+| `stack-cards` (trigger: cardul următor) | `top bottom` | `top 15%` | true |
 | `fan-emerge` deschidere | `top 45%` | `bottom top` | 0.6 |
 
 Reguli: titlurile nu pornesc prea devreme (sub ~80% din ecran) și nici prea repede; scrub-ul legat de scroll trebuie să aibă drum lung, ca mișcarea să se vadă.
@@ -49,4 +52,7 @@ Reguli: titlurile nu pornesc prea devreme (sub ~80% din ecran) și nici prea rep
 - Hover: −5px (carduri) / −6px (carduri mari), ±1° înclinare, fan hover −14px + scale 1,06.
 - `slider-tilt`: 1,5° stânga → 6° la marginea dreaptă → max 9° în afara ecranului.
 - `fly-cards`: ±62% din lățimea ecranului, ±25°, scale 1,15 (desktop); ±75%, ±16°, 1,08 (mobil).
+- `cross-reveal`: 16px de la margine, imaginea de la 1,7 la 1, crucea dispare pe ultimele 8% din drum.
+- `title-pass`: y de la +depth × k la −depth × k, cu k = 90 (desktop) și 30 (mobil).
+- `stack-cards`: top 16px + i × 10px, cardul de dedesubt scade la 0,93.
 - Plutire: ±2px / ±1° (insigne), ±5px / ±1,5° (carduri fan pe mobil).
