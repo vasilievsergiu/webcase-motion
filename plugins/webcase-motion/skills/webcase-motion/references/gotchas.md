@@ -42,7 +42,6 @@ Fiecare punct de mai jos a fost un bug real, văzut pe iPhone sau desktop.
 25. Parallax pe imagini: imaginea are nevoie de rezervă (`scale: 1.14`), altfel apar goluri la margini. `parallax` face asta singur: scale = 1 + 2 × speed / 100.
 25a. **`dive-in`:** secțiunea următoare trebuie să aibă exact culoarea cercului (`--wm-arc-color`), altfel trecerea se vede ca o margine.
 25b. **`window-merge`** desenează ferestrele cu `clip-path: path()`, în pixeli: se recalculează la fiecare refresh al ScrollTrigger (resize). Nu pune `overflow: hidden` pe părinți: conținutul e sticky.
-25c. **`cloud-drift`:** pozele cu nori trebuie să aibă fundal transparent și o înălțime setată în CSS; lățimea benzii se calculează după ce se încarcă poza.
 25d. **`slide-reveal`:** starea ascunsă e în CSS; la final masca se pune pe `none` inline, nu cu `clearProps` (altfel revine starea ascunsă).
 
 ## Verificare

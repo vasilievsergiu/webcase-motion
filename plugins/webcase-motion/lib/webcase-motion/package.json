@@ -1,6 +1,6 @@
 {
   "name": "webcase-motion",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Animații web reutilizabile (GSAP + Lenis), pornite din atribute HTML: data-motion=\"…\".",
   "type": "module",
   "main": "dist/webcase-motion.js",

@@ -395,28 +395,6 @@ html.wm-anim .wm-dive-stick [data-dive-content] { position: relative; z-index: 1
 .is-win-on [data-win-side="left"] { left: 0; bottom: 0; transform-origin: left bottom; }
 .is-win-on [data-win-side="right"] { right: 0; top: 0; transform-origin: right top; }
 
-/* ─── cloud-drift: benzi de nori care rulează (pornite din JS) ─── */
-[data-motion="cloud-drift"] { position: relative; overflow: hidden; }
-[data-motion="cloud-drift"]::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 3;
-  height: var(--wm-cloud-fade-h, 288px);
-  background: linear-gradient(var(--wm-cloud-fade, #fff), transparent);
-  pointer-events: none;
-}
-.wm-cloud-band { position: absolute; left: 0; right: 0; z-index: 2; overflow: hidden; pointer-events: none; }
-.wm-cloud-track { display: flex; width: max-content; }
-.wm-cloud-track > img { display: block; flex: none; }
-.wm-cloud-track.is-on { animation: wm-cloud-run 30s linear infinite; }
-.is-paused .wm-cloud-track { animation-play-state: paused; }
-@keyframes wm-cloud-run {
-  to { transform: translateX(-50%); }
-}
-
 /* ─── title-pass: titlu sticky, carduri care trec peste el ───
    Doar cu animații pornite; altfel titlul și cardurile stau unul sub altul.
    Niciun părinte cu overflow: hidden/auto (strică sticky): folosește overflow: clip. */

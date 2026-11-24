@@ -883,55 +883,6 @@ function windowMerge(sec) {
     tl.to(s, { xPercent: 50 * dir, scale: zoom, ease: SOFT_INOUT, duration: 0.4 }, "<");
   });
 }
-function cloudDrift(sec) {
-  if (sec.classList.contains("is-drift-on")) return;
-  sec.classList.add("is-drift-on");
-  sec.style.setProperty("--wm-cloud-fade-h", `${opt(sec, "fade", 288)}px`);
-  $$("img[data-cloud]", sec).forEach((img) => {
-    const band = document.createElement("div");
-    band.className = "wm-cloud-band";
-    band.style.top = img.dataset.top || "0";
-    const track = document.createElement("div");
-    track.className = "wm-cloud-track";
-    img.replaceWith(band);
-    band.append(track);
-    track.append(img);
-    const speed = Number(img.dataset.speed || 50);
-    const build = () => {
-      const w = img.getBoundingClientRect().width;
-      if (!w) return;
-      const k = Math.ceil(window.innerWidth / w) + 1;
-      track.replaceChildren();
-      for (let i = 0; i < k * 2; i++) {
-        const c = img.cloneNode();
-        if (i) c.alt = "";
-        track.append(c);
-      }
-      track.style.animationDuration = `${k * w / speed}s`;
-      track.classList.add("is-on");
-    };
-    if (img.complete && img.naturalWidth) build();
-    else img.addEventListener("load", build, { once: true });
-    addEventListener("resize", () => {
-      track.classList.remove("is-on");
-      track.replaceChildren(img);
-      build();
-    });
-  });
-  new IntersectionObserver(([e]) => sec.classList.toggle("is-paused", !e.isIntersecting)).observe(sec);
-  const bg = $("[data-cloud-bg]", sec);
-  if (bg)
-    gsap.fromTo(
-      bg,
-      { scale: 1.15 },
-      {
-        scale: 1,
-        transformOrigin: "center bottom",
-        ease: "none",
-        scrollTrigger: { trigger: sec, start: "top bottom", end: "bottom bottom", scrub: 0.25 }
-      }
-    );
-}
 function frameClose(sec) {
   const inset = mq(DESKTOP) ? opt(sec, "inset", "8% 22%") : opt(sec, "inset-mobile", "4% 32%");
   const next = sec.nextElementSibling;
@@ -945,7 +896,6 @@ function frameClose(sec) {
 function initSections(scope = document) {
   $$("[data-motion='dive-in']", scope).forEach(diveIn);
   $$("[data-motion='window-merge']", scope).forEach(windowMerge);
-  $$("[data-motion='cloud-drift']", scope).forEach(cloudDrift);
   $$("[data-motion='frame-close']", scope).forEach(frameClose);
 }
 
@@ -1331,7 +1281,6 @@ export {
   WIPE_UP_TO,
   accordion,
   charsFlip,
-  cloudDrift,
   countdown,
   crossReveal,
   diveIn,

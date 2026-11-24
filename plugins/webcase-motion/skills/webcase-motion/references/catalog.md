@@ -311,22 +311,6 @@ O singură poză, văzută prin două ferestre decalate. La scroll, ferestrele s
 - Doar desktop. Pe telefon rămâne o poză simplă.
 - În jurul ferestrelor se vede fundalul secțiunii.
 
-### `cloud-drift`
-
-Straturi de nori care plutesc continuu, fiecare cu viteza lui, ca să pară la adâncimi diferite. Sus se topesc în culoarea paginii. Imaginea de dedesubt se micșorează încet la scroll.
-
-```html
-<section data-motion="cloud-drift">
-  <img data-cloud data-speed="60" src="nori-1.png" alt="">
-  <img data-cloud data-speed="43" data-top="12%" src="nori-2.png" alt="">
-  <div data-cloud-bg><img src="…" alt="…"></div>
-</section>
-```
-
-- **Opțiuni:** `data-speed` (px pe secundă) și `data-top` pe fiecare strat; `data-wm-fade="288"` (înălțimea topirii, px).
-- **Culoare:** `--wm-cloud-fade`, culoarea în care se topesc norii (pune culoarea fundalului paginii).
-- Pozele cu nori au fundal transparent (PNG, WebP sau AVIF). Benzile rulează doar cât secțiunea e pe ecran.
-
 ### `frame-close`
 
 La finalul paginii, secțiunea cu poza se strânge într-un cadru cât pleci din ea, iar secțiunea următoare (de obicei footer-ul) crește spre tine.

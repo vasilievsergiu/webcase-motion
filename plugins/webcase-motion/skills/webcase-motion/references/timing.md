@@ -52,7 +52,6 @@ Valorile de mai jos sunt cele aprobate după testare pe desktop și iPhone. Nu l
 | `parallax` block | `top 125%` | `bottom -25%` | 0.5 |
 | `dive-in` | `top top` | `bottom bottom` (secțiune de 4 ecrane, conținut sticky) | true |
 | `window-merge` | `top top` | `bottom bottom` (3 ecrane: 50% aliniere, 10% unire, 40% zoom) | true |
-| `cloud-drift` (imaginea de dedesubt) | `top bottom` | `bottom bottom` | 0.25 |
 | `frame-close` | `bottom bottom` | `bottom top` | 0.5 |
 | `fan-emerge` deschidere | `top 45%` | `bottom top` | 0.6 |
 
@@ -72,6 +71,5 @@ Reguli: titlurile nu pornesc prea devreme (sub ~80% din ecran) și nici prea rep
 - `parallax`: img ±15% (scale 1,3), block ±10%.
 - `dive-in`: textul urcă 90% din ecran, imaginea 12%; zoom 1 → 2 din 50% 75%; cercul urcă de jos până la 30% din ecran; spațiul dintre cuvinte 0 → 4em.
 - `window-merge`: ferestre 22–49% și 51–78% pe lățime, decalate (26–90% și 10–74%) → aliniate la 18–82% → unite → zoom 1,84; decorul iese în lateral cu 50%.
-- `cloud-drift`: viteze tipice 60, 52, 43 px/s; topire 288px; imaginea 1,15 → 1.
 - `frame-close`: inset 0 → 8% 22% (desktop), 4% 32% (mobil); secțiunea următoare 0,75 → 1.
 - Plutire: ±2px / ±1° (insigne), ±5px / ±1,5° (carduri fan pe mobil).

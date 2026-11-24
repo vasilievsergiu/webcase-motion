@@ -163,75 +163,6 @@ export function windowMerge(sec: HTMLElement) {
   });
 }
 
-/* ──────────────────────────── cloud-drift ────────────────────────────
- * <section data-motion="cloud-drift">
- *   <img data-cloud data-speed="60" data-top="0" src="nori-1.png" alt="">
- *   <img data-cloud data-speed="43" data-top="12%" src="nori-2.png" alt="">
- *   <div data-cloud-bg> <img …> </div>             ← opțional, peisajul de dedesubt
- * </section>
- * Fiecare strat de nori devine o bandă care rulează la nesfârșit (CSS),
- * cu viteza lui în px/s: straturile au viteze diferite, deci par la
- * adâncimi diferite. Sus, un gradient de culoarea paginii îi „topește”.
- * Benzile rulează doar cât secțiunea e pe ecran. Peisajul de dedesubt
- * scade de la 1,15 la 1, legat de scroll.
- * Opțiuni: data-speed="50" și data-top="0" (pe fiecare strat),
- *          data-wm-fade="288" (înălțimea topirii, px)
- * Culoare: --wm-cloud-fade (implicit alb; pune culoarea fundalului paginii).
- */
-export function cloudDrift(sec: HTMLElement) {
-  if (sec.classList.contains("is-drift-on")) return;
-  sec.classList.add("is-drift-on");
-  sec.style.setProperty("--wm-cloud-fade-h", `${opt(sec, "fade", 288)}px`);
-
-  $$<HTMLImageElement>("img[data-cloud]", sec).forEach((img) => {
-    const band = document.createElement("div");
-    band.className = "wm-cloud-band";
-    band.style.top = img.dataset.top || "0";
-    const track = document.createElement("div");
-    track.className = "wm-cloud-track";
-    img.replaceWith(band);
-    band.append(track);
-    track.append(img);
-    const speed = Number(img.dataset.speed || 50);
-    const build = () => {
-      const w = img.getBoundingClientRect().width;
-      if (!w) return;
-      /* Jumătate de bandă acoperă ecranul + o copie; -50% = buclă perfectă. */
-      const k = Math.ceil(window.innerWidth / w) + 1;
-      track.replaceChildren();
-      for (let i = 0; i < k * 2; i++) {
-        const c = img.cloneNode() as HTMLImageElement;
-        if (i) c.alt = "";
-        track.append(c);
-      }
-      track.style.animationDuration = `${(k * w) / speed}s`;
-      track.classList.add("is-on");
-    };
-    if (img.complete && img.naturalWidth) build();
-    else img.addEventListener("load", build, { once: true });
-    addEventListener("resize", () => {
-      track.classList.remove("is-on");
-      track.replaceChildren(img);
-      build();
-    });
-  });
-
-  new IntersectionObserver(([e]) => sec.classList.toggle("is-paused", !e.isIntersecting)).observe(sec);
-
-  const bg = $("[data-cloud-bg]", sec);
-  if (bg)
-    gsap.fromTo(
-      bg,
-      { scale: 1.15 },
-      {
-        scale: 1,
-        transformOrigin: "center bottom",
-        ease: "none",
-        scrollTrigger: { trigger: sec, start: "top bottom", end: "bottom bottom", scrub: 0.25 },
-      },
-    );
-}
-
 /* ──────────────────────────── frame-close ────────────────────────────
  * <section data-motion="frame-close"> secțiunea cu poza </section>
  * <footer data-frame-next> … </footer>             ← opțional, crește de la 0,75 la 1
@@ -257,6 +188,5 @@ export function frameClose(sec: HTMLElement) {
 export function initSections(scope: ParentNode = document) {
   $$("[data-motion='dive-in']", scope).forEach(diveIn);
   $$("[data-motion='window-merge']", scope).forEach(windowMerge);
-  $$("[data-motion='cloud-drift']", scope).forEach(cloudDrift);
   $$("[data-motion='frame-close']", scope).forEach(frameClose);
 }
