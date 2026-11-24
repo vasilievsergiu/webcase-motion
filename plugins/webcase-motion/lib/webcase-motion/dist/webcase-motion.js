@@ -28,6 +28,36 @@ var cssRot = (el) => parseFloat(getComputedStyle(el).getPropertyValue("--r")) ||
 var EASE = "power3.out";
 var EXPO = "expo.out";
 var LAND = "back.out(1.4)";
+function bezier(x1, y1, x2, y2) {
+  const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
+  const cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+  const sx = (t) => ((ax * t + bx) * t + cx) * t;
+  const sy = (t) => ((ay * t + by) * t + cy) * t;
+  const dx = (t) => (3 * ax * t + 2 * bx) * t + cx;
+  return (x) => {
+    if (x <= 0) return 0;
+    if (x >= 1) return 1;
+    let t = x;
+    for (let i = 0; i < 8; i++) {
+      const e = sx(t) - x;
+      if (Math.abs(e) < 1e-6) return sy(t);
+      const d = dx(t);
+      if (Math.abs(d) < 1e-6) break;
+      t -= e / d;
+    }
+    let lo = 0, hi = 1;
+    t = x;
+    for (let i = 0; i < 30; i++) {
+      if (sx(t) < x) lo = t;
+      else hi = t;
+      t = (lo + hi) / 2;
+    }
+    return sy(t);
+  };
+}
+var SOFT = bezier(0.25, 1, 0.5, 1);
+var SOFT_IN = bezier(0.5, 0, 0.75, 0);
+var SOFT_INOUT = bezier(0.75, 0, 0.25, 1);
 var DESKTOP = "(min-width: 992px)";
 var POINTER = "(min-width: 992px) and (hover: hover) and (pointer: fine)";
 var WIPE_UP = { y: 24, clipPath: "inset(0% 0% 100% 0%)" };
@@ -252,6 +282,28 @@ function textSwap(el) {
     if (e.isIntersecting) timer = window.setInterval(next, interval);
   }).observe(el);
 }
+function charsFlip(el) {
+  const start = opt(el, "start", "top 85%");
+  const back = opt(el, "back", "") === "hide";
+  safeSplit(el, {
+    type: "words,chars",
+    wordsClass: "wm-flip-w",
+    charsClass: "wm-flip-ch",
+    autoSplit: true,
+    onSplit: (self) => gsap.fromTo(
+      self.chars,
+      { rotationY: 90, yPercent: 50 },
+      {
+        rotationY: 0,
+        yPercent: 0,
+        duration: 1.2,
+        ease: SOFT,
+        stagger: 0.05,
+        scrollTrigger: { trigger: el, start, toggleActions: back ? "play none none reverse" : "play none none none" }
+      }
+    )
+  });
+}
 function initText(scope = document) {
   $$("[data-motion='split-lines']", scope).forEach(splitLines);
   $$("[data-motion='split-sides']", scope).forEach(splitSides);
@@ -260,6 +312,7 @@ function initText(scope = document) {
   $$("[data-motion='rows-wipe']", scope).forEach(rowsWipe);
   $$("[data-motion='land-from-right']", scope).forEach(landFromRight);
   $$("[data-motion='text-swap']", scope).forEach(textSwap);
+  $$("[data-motion='chars-flip']", scope).forEach(charsFlip);
 }
 
 // src/motions/cards.ts
@@ -665,8 +718,235 @@ function crossReveal(box) {
     }
   });
 }
+var SLIDE_FROM = "polygon(100% 0%, 100% 0%, 101% 100%, 125% 100%)";
+var SLIDE_TO = "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)";
+function slideReveal(box) {
+  const media = box.firstElementChild;
+  gsap.set(box, { clipPath: SLIDE_FROM });
+  if (media) gsap.set(media, { scale: 1.5, xPercent: 25 });
+  onEnter(
+    box,
+    () => {
+      gsap.to(box, {
+        clipPath: SLIDE_TO,
+        duration: 1.2,
+        ease: SOFT_INOUT,
+        onComplete: () => gsap.set(box, { clipPath: "none" })
+      });
+      if (media) gsap.to(media, { scale: 1, xPercent: 0, duration: 1.2, ease: SOFT_INOUT });
+    },
+    opt(box, "start", "top 85%")
+  );
+}
+function parallax(el) {
+  if (!mq(DESKTOP) && opt(el, "mobile", "on") === "off") return;
+  if (opt(el, "mode", "img") === "block") {
+    const s2 = opt(el, "speed", 10);
+    gsap.fromTo(
+      el,
+      { yPercent: -s2 },
+      { yPercent: s2, ease: "none", scrollTrigger: { trigger: el, start: "top 125%", end: "bottom -25%", scrub: 0.5 } }
+    );
+    return;
+  }
+  const media = el.querySelector("[data-parallax-media]") ?? el.firstElementChild;
+  if (!media) return;
+  const s = Math.abs(opt(el, "speed", 15));
+  gsap.fromTo(
+    media,
+    { yPercent: -s, scale: 1 + 2 * s / 100 },
+    {
+      yPercent: s,
+      scale: 1 + 2 * s / 100,
+      ease: "none",
+      scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: 0.5 }
+    }
+  );
+}
 function initMedia(scope = document) {
   $$("[data-motion='cross-reveal']", scope).forEach(crossReveal);
+  $$("[data-motion='slide-reveal']", scope).forEach(slideReveal);
+  $$("[data-motion='parallax']", scope).forEach(parallax);
+}
+
+// src/motions/sections.ts
+function wrapChildren(el, className) {
+  const wrap = document.createElement("div");
+  wrap.className = className;
+  wrap.append(...Array.from(el.childNodes));
+  el.append(wrap);
+  return wrap;
+}
+var esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+function diveIn(sec) {
+  if (sec.querySelector(":scope > .wm-dive-stick")) return;
+  const bg = $("[data-dive-bg]", sec);
+  const content = $("[data-dive-content]", sec);
+  const zoom = opt(sec, "zoom", 2);
+  const arcText = opt(sec, "arc-text", "");
+  const spread = opt(sec, "arc-spread", 4);
+  sec.style.setProperty("--wm-dive-length", String(opt(sec, "length", 4)));
+  const stick = wrapChildren(sec, "wm-dive-stick");
+  let arc = null;
+  let words = null;
+  if (arcText) {
+    const id = `wm-arc-${Math.random().toString(36).slice(2, 9)}`;
+    arc = document.createElement("div");
+    arc.className = "wm-dive-arc";
+    arc.setAttribute("aria-hidden", "true");
+    arc.innerHTML = `<svg viewBox="0 0 1000 1000"><circle cx="500" cy="500" r="500" /><path id="${id}" d="M 70,500 A 430,430 0 0 1 930,500" fill="none" /><text><textPath href="#${id}" startOffset="50%" text-anchor="middle">${esc(arcText)}</textPath></text></svg>`;
+    stick.append(arc);
+    words = arc.querySelector("text");
+  }
+  let maxSpread = spread;
+  const layoutArc = () => {
+    if (!arc || !words) return;
+    const path = arc.querySelector("path");
+    const size = arc.offsetWidth;
+    if (!path || !size) return;
+    const r = 430;
+    const dx = Math.min(r, window.innerWidth / 2 / size * 1e3 * 0.88);
+    const y = 500 - Math.sqrt(r * r - dx * dx);
+    path.setAttribute("d", `M ${500 - dx},${y} A ${r},${r} 0 0 1 ${500 + dx},${y}`);
+    const arcLen = path.getTotalLength();
+    let fs = 30;
+    words.style.fontSize = `${fs}px`;
+    words.style.wordSpacing = "0em";
+    let len = words.getComputedTextLength();
+    if (len > arcLen * 0.9) {
+      fs = Math.max(12, fs * arcLen * 0.9 / len);
+      words.style.fontSize = `${fs}px`;
+      len = words.getComputedTextLength();
+    }
+    const gaps = Math.max(1, arcText.trim().split(/\s+/).length - 1);
+    maxSpread = Math.max(0, (arcLen * 0.95 - len) / gaps / fs);
+  };
+  layoutArc();
+  const desktop = mq(DESKTOP);
+  const vh = () => window.innerHeight;
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: sec,
+      start: "top top",
+      end: "bottom bottom",
+      scrub: true,
+      invalidateOnRefresh: true,
+      onRefreshInit: layoutArc
+    }
+  });
+  if (desktop) {
+    if (content) tl.fromTo(content, { y: 0 }, { y: () => -vh() * 0.9, ease: "none", duration: 0.6 }, 0);
+    if (bg) tl.fromTo(bg, { y: 0 }, { y: () => -vh() * 0.12, ease: "none", duration: 0.6 }, 0);
+  }
+  if (bg) tl.fromTo(bg, { scale: 1 }, { scale: zoom, ease: SOFT_IN, duration: 0.6 }, desktop ? 0.4 : 0);
+  if (arc) {
+    tl.fromTo(arc, { y: () => vh() }, { y: () => vh() * 0.3, ease: "none", duration: 0.55 }, desktop ? 0.45 : 0.3);
+    if (words)
+      tl.fromTo(
+        words,
+        { wordSpacing: "0em" },
+        { wordSpacing: () => `${Math.min(spread, maxSpread)}em`, ease: "none", duration: 0.55 },
+        "<"
+      );
+  }
+  tl.to({}, { duration: 0 }, 1);
+}
+function windowMerge(sec) {
+  const media = $("[data-win-media]", sec);
+  if (!media || !mq(DESKTOP) || sec.classList.contains("is-win-on")) return;
+  const zoom = opt(sec, "zoom", 1.84);
+  sec.style.setProperty("--wm-win-length", String(opt(sec, "length", 2)));
+  sec.classList.add("is-win-on");
+  const stick = wrapChildren(sec, "wm-win-stick");
+  const frame = document.createElement("div");
+  frame.className = "wm-win-frame";
+  stick.prepend(frame);
+  frame.append(media);
+  const sides = $$("[data-win-side]", sec);
+  const st = { a: 0, m: 0 };
+  const lerp = (x, y, t) => x + (y - x) * t;
+  const draw = () => {
+    const w = frame.clientWidth;
+    const h = frame.clientHeight;
+    const rect = (x1, y1, x2, y2) => `M${x1 * w / 100} ${y1 * h / 100}H${x2 * w / 100}V${y2 * h / 100}H${x1 * w / 100}Z`;
+    const left = rect(22, lerp(26, 18, st.a), lerp(49, 50.5, st.m), lerp(90, 82, st.a));
+    const right = rect(lerp(51, 49.5, st.m), lerp(10, 18, st.a), 78, lerp(74, 82, st.a));
+    frame.style.clipPath = `path("${left} ${right}")`;
+  };
+  draw();
+  const tl = gsap.timeline({
+    scrollTrigger: { trigger: sec, start: "top top", end: "bottom bottom", scrub: true, onRefresh: draw }
+  });
+  tl.to(st, { a: 1, ease: "none", duration: 0.5, onUpdate: draw }).to(st, { m: 1, ease: "none", duration: 0.1, onUpdate: draw }).to(frame, { scale: zoom, ease: SOFT_INOUT, duration: 0.4 });
+  sides.forEach((s) => {
+    const dir = s.dataset.winSide === "left" ? -1 : 1;
+    tl.to(s, { xPercent: 50 * dir, scale: zoom, ease: SOFT_INOUT, duration: 0.4 }, "<");
+  });
+}
+function cloudDrift(sec) {
+  if (sec.classList.contains("is-drift-on")) return;
+  sec.classList.add("is-drift-on");
+  sec.style.setProperty("--wm-cloud-fade-h", `${opt(sec, "fade", 288)}px`);
+  $$("img[data-cloud]", sec).forEach((img) => {
+    const band = document.createElement("div");
+    band.className = "wm-cloud-band";
+    band.style.top = img.dataset.top || "0";
+    const track = document.createElement("div");
+    track.className = "wm-cloud-track";
+    img.replaceWith(band);
+    band.append(track);
+    track.append(img);
+    const speed = Number(img.dataset.speed || 50);
+    const build = () => {
+      const w = img.getBoundingClientRect().width;
+      if (!w) return;
+      const k = Math.ceil(window.innerWidth / w) + 1;
+      track.replaceChildren();
+      for (let i = 0; i < k * 2; i++) {
+        const c = img.cloneNode();
+        if (i) c.alt = "";
+        track.append(c);
+      }
+      track.style.animationDuration = `${k * w / speed}s`;
+      track.classList.add("is-on");
+    };
+    if (img.complete && img.naturalWidth) build();
+    else img.addEventListener("load", build, { once: true });
+    addEventListener("resize", () => {
+      track.classList.remove("is-on");
+      track.replaceChildren(img);
+      build();
+    });
+  });
+  new IntersectionObserver(([e]) => sec.classList.toggle("is-paused", !e.isIntersecting)).observe(sec);
+  const bg = $("[data-cloud-bg]", sec);
+  if (bg)
+    gsap.fromTo(
+      bg,
+      { scale: 1.15 },
+      {
+        scale: 1,
+        transformOrigin: "center bottom",
+        ease: "none",
+        scrollTrigger: { trigger: sec, start: "top bottom", end: "bottom bottom", scrub: 0.25 }
+      }
+    );
+}
+function frameClose(sec) {
+  const inset = mq(DESKTOP) ? opt(sec, "inset", "8% 22%") : opt(sec, "inset-mobile", "4% 32%");
+  const next = sec.nextElementSibling;
+  const grow = next?.hasAttribute("data-frame-next") ? next.querySelector("[data-frame-grow]") ?? next.firstElementChild : null;
+  const tl = gsap.timeline({
+    scrollTrigger: { trigger: sec, start: "bottom bottom", end: "bottom top", scrub: 0.5 }
+  });
+  tl.fromTo(sec, { clipPath: "inset(0% 0% 0% 0%)" }, { clipPath: `inset(${inset})`, ease: "none" }, 0);
+  if (grow) tl.fromTo(grow, { scale: 0.75 }, { scale: 1, transformOrigin: "center top", ease: "none" }, 0);
+}
+function initSections(scope = document) {
+  $$("[data-motion='dive-in']", scope).forEach(diveIn);
+  $$("[data-motion='window-merge']", scope).forEach(windowMerge);
+  $$("[data-motion='cloud-drift']", scope).forEach(cloudDrift);
+  $$("[data-motion='frame-close']", scope).forEach(frameClose);
 }
 
 // src/motions/ui.ts
@@ -1025,6 +1305,7 @@ async function initMotion(opts = {}) {
     initText();
     initCards();
     initMedia();
+    initSections();
     window.addEventListener("load", () => ScrollTrigger.refresh());
   } catch (err) {
     console.error(err);
@@ -1039,6 +1320,9 @@ export {
   LAND,
   POINTER,
   SHORT_SCREEN,
+  SOFT,
+  SOFT_IN,
+  SOFT_INOUT,
   ScrollTrigger,
   SplitText,
   WIPE_LR,
@@ -1046,19 +1330,24 @@ export {
   WIPE_UP,
   WIPE_UP_TO,
   accordion,
+  charsFlip,
+  cloudDrift,
   countdown,
   crossReveal,
+  diveIn,
   dotsCursor,
   fan,
   fanEmerge,
   fanHover,
   flyCards,
+  frameClose,
   getLenis,
   gsap,
   horizontalPin,
   initCards,
   initMedia,
   initMotion,
+  initSections,
   initText,
   initUi,
   intro,
@@ -1066,10 +1355,12 @@ export {
   loader,
   marquee,
   marqueeCss,
+  parallax,
   pinCards,
   reduced,
   revealWipe,
   rowsWipe,
+  slideReveal,
   sliderTilt,
   smoothScroll,
   splitLines,
@@ -1078,5 +1369,6 @@ export {
   textSwap,
   titlePass,
   topbarGlass,
+  windowMerge,
   wordsScrub
 };

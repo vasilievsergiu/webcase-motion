@@ -39,7 +39,11 @@ Fiecare punct de mai jos a fost un bug real, văzut pe iPhone sau desktop.
 
 ## Imagini / SVG
 24. **SVG cu `mask`/`filter` (blur) într-un `<img>` e pixelat pe iOS** (Safari îl rasterizează la 1x). Pune-l inline sau simplifică-l.
-25. Parallax pe imagini: imaginea are nevoie de rezervă (`scale: 1.14`), altfel apar goluri la margini.
+25. Parallax pe imagini: imaginea are nevoie de rezervă (`scale: 1.14`), altfel apar goluri la margini. `parallax` face asta singur: scale = 1 + 2 × speed / 100.
+25a. **`dive-in`:** secțiunea următoare trebuie să aibă exact culoarea cercului (`--wm-arc-color`), altfel trecerea se vede ca o margine.
+25b. **`window-merge`** desenează ferestrele cu `clip-path: path()`, în pixeli: se recalculează la fiecare refresh al ScrollTrigger (resize). Nu pune `overflow: hidden` pe părinți: conținutul e sticky.
+25c. **`cloud-drift`:** pozele cu nori trebuie să aibă fundal transparent și o înălțime setată în CSS; lățimea benzii se calculează după ce se încarcă poza.
+25d. **`slide-reveal`:** starea ascunsă e în CSS; la final masca se pune pe `none` inline, nu cu `clearProps` (altfel revine starea ascunsă).
 
 ## Verificare
 26. În panoul de preview, `requestAnimationFrame` îngheață între comenzi: o captură poate prinde mijlocul animației. Așteaptă sau citește starea finală cu `gsap.getProperty`.

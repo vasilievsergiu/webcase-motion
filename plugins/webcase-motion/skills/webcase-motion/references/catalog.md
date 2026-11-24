@@ -90,6 +90,17 @@ O frază care se schimbă singură, în buclă. Literele vechi se estompează î
 - Rulează doar cât fraza e pe ecran. Cuvintele nu se rup la mijloc.
 - **Timing:** ieșire 0,42s, cu 18ms între litere; intrare 0,7s, cu 28ms între litere; blur 14px.
 
+### `chars-flip`
+
+Literele titlului se întorc pe rând, ca niște cărți de joc, și urcă puțin. Se folosește pentru titlurile mari și elegante, de tip editorial.
+
+```html
+<h2 data-motion="chars-flip">Arhitectură</h2>
+```
+
+- **Opțiuni:** `data-wm-start="top 85%"`; `data-wm-back="hide"`, ca titlul să dispară când urci înapoi și să reapară la coborâre.
+- **Timing:** 1,2s, cu 0,05s între litere, easing `SOFT`. Literele pornesc rotite la 90° (din profil sunt invizibile), deci fără fade.
+
 ---
 
 ## Intrarea primului ecran — `data-intro`
@@ -237,6 +248,96 @@ La scroll, un cursor de Figma trage o cruce din stânga sus spre dreapta jos. Im
 - **Culori:** `--wm-xr-cursor` (cursorul, implicit `#ff4365`) și `--wm-xr-line` (liniile crucii).
 - Se mărește primul copil sau elementul cu `data-xr-zoom`.
 - Fără JS sau la mișcare redusă, imaginea se vede direct.
+
+### `slide-reveal`
+
+Poza intră pe diagonală, din dreapta, printr-o mască oblică. În același timp, imaginea din interior se micșorează de la 1,5 la 1 și alunecă spre stânga. Merge bine pentru pozele dintr-o galerie sau dintr-un studiu de caz.
+
+```html
+<figure data-motion="slide-reveal">
+  <img src="…" alt="…">
+</figure>
+```
+
+- **Opțiuni:** `data-wm-start="top 85%"`.
+- **Timing:** 1,2s, easing `SOFT_INOUT`. Rulează o singură dată.
+
+### `parallax`
+
+Poza se mișcă mai încet decât pagina, în rama ei, sau un bloc întreg se mișcă puțin în sus ori în jos. Dă adâncime fără să atragă atenția.
+
+```html
+<figure data-motion="parallax"><img src="…" alt="…"></figure>
+<div data-motion="parallax" data-wm-mode="block" data-wm-speed="-10"> … </div>
+```
+
+- **Opțiuni:** `data-wm-mode="img"` (implicit, poza în ramă, ±15%) sau `"block"` (elementul întreg, ±10%); `data-wm-speed` (procente; negativ = blocul urcă); `data-wm-mobile="off"`.
+- În modul `img`, poza e mărită automat cu `1 + 2 × speed / 100`, ca să nu apară goluri la margini.
+
+---
+
+## Secțiuni
+
+Efecte mari, pentru o secțiune întreagă. Sunt „wow”: cel mult unul sau două pe pagină.
+
+### `dive-in`
+
+Primul ecran stă pe loc, iar la scroll imaginea din spate crește spre tine, ca și cum ai intra în ea. Textul urcă mai repede decât imaginea. Opțional, peste ea urcă un cerc mare, cu un text scris pe margine, care face trecerea spre secțiunea următoare.
+
+```html
+<section data-motion="dive-in" data-wm-arc-text="Trei motive să ne alegi">
+  <div data-dive-bg><img src="…" alt="…"></div>
+  <div data-dive-content> titlu, butoane </div>
+</section>
+```
+
+- **Opțiuni:** `data-wm-length="4"` (câte ecrane de scroll), `data-wm-zoom="2"`, `data-wm-arc-text` (fără el nu apare cercul), `data-wm-arc-spread="4"` (spațiul final dintre cuvintele de pe cerc, în em).
+- **Culori:** `--wm-arc-color` (cercul) și `--wm-arc-ink` (textul de pe cerc). Secțiunea următoare trebuie să aibă aceeași culoare cu cercul.
+- **Pe telefon:** doar zoom-ul și cercul.
+
+### `window-merge`
+
+O singură poză, văzută prin două ferestre decalate. La scroll, ferestrele se aliniază, se unesc într-una, apoi fereastra crește până umple ecranul. Decorul din margini (flori, forme) iese în lateral.
+
+```html
+<section data-motion="window-merge">
+  <div data-win-media><img src="…" alt="…"></div>
+  <div data-win-side="left"> decor </div>
+  <div data-win-side="right"> decor </div>
+</section>
+```
+
+- **Opțiuni:** `data-wm-zoom="1.84"`, `data-wm-length="2"` (ecrane de scroll).
+- Doar desktop. Pe telefon rămâne o poză simplă.
+- În jurul ferestrelor se vede fundalul secțiunii.
+
+### `cloud-drift`
+
+Straturi de nori care plutesc continuu, fiecare cu viteza lui, ca să pară la adâncimi diferite. Sus se topesc în culoarea paginii. Imaginea de dedesubt se micșorează încet la scroll.
+
+```html
+<section data-motion="cloud-drift">
+  <img data-cloud data-speed="60" src="nori-1.png" alt="">
+  <img data-cloud data-speed="43" data-top="12%" src="nori-2.png" alt="">
+  <div data-cloud-bg><img src="…" alt="…"></div>
+</section>
+```
+
+- **Opțiuni:** `data-speed` (px pe secundă) și `data-top` pe fiecare strat; `data-wm-fade="288"` (înălțimea topirii, px).
+- **Culoare:** `--wm-cloud-fade`, culoarea în care se topesc norii (pune culoarea fundalului paginii).
+- Pozele cu nori au fundal transparent (PNG, WebP sau AVIF). Benzile rulează doar cât secțiunea e pe ecran.
+
+### `frame-close`
+
+La finalul paginii, secțiunea cu poza se strânge într-un cadru cât pleci din ea, iar secțiunea următoare (de obicei footer-ul) crește spre tine.
+
+```html
+<section data-motion="frame-close"> secțiunea cu poza </section>
+<footer data-frame-next> … </footer>
+```
+
+- **Opțiuni:** `data-wm-inset="8% 22%"` (cadrul final pe desktop) și `data-wm-inset-mobile="4% 32%"`.
+- În jurul cadrului se vede fundalul paginii. Crește `[data-frame-grow]` din footer sau primul lui copil.
 
 ---
 

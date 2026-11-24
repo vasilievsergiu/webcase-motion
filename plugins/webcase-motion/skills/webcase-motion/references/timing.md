@@ -8,6 +8,9 @@ Valorile de mai jos sunt cele aprobate după testare pe desktop și iPhone. Nu l
 | `EASE` | `power3.out` | apariții standard (`reveal-wipe`, intro rise), hover JS |
 | `EXPO` | `expo.out` | titluri pe rânduri, intrarea primului ecran |
 | `LAND` | `back.out(1.4)` | carduri care aterizează (slider, fly-cards) |
+| `SOFT` | `cubic-bezier(0.25, 1, 0.5, 1)` | ritmul „soft”, 1,2s: `chars-flip` |
+| `SOFT_IN` | `cubic-bezier(0.5, 0, 0.75, 0)` | zoom-ul spre poză din `dive-in` |
+| `SOFT_INOUT` | `cubic-bezier(0.75, 0, 0.25, 1)` | `slide-reveal`, zoom-ul din `window-merge` |
 | — | `back.out(1.6)` | fan hover (cardul se îndreaptă) |
 | — | `back.out(2.5)` | iconițe/bife care „pocnesc” |
 | — | `power2.out` | carduri care se opresc lin, fără recul (pin-cards) |
@@ -23,6 +26,7 @@ Valorile de mai jos sunt cele aprobate după testare pe desktop și iPhone. Nu l
 - Carduri: 0,9–1,1s; stagger 0,07–0,08s.
 - Hover: 300ms CSS (ridicare/înclinare) · 550ms GSAP (fan).
 - Accordion 0,4s · topbar 450ms · cifre countdown 380ms.
+- Ritmul „soft” (doar animațiile noi, după ERA): 1,2s; `chars-flip` cu 0,05s între litere; `slide-reveal` 1,2s.
 - `text-swap`: ieșire 0,42s (18ms între litere) → intrare 0,7s (28ms între litere) · schimbare la 4,8s · blur 14px, ±0,12em pe verticală.
 - Loader: numărătoare 0,65s → conținutul iese la 0,7s (0,35s) → foaia urcă la 0,8s (0,8s) → intrarea paginii pornește la **1,3s** (după ce foaia a trecut de titlu, altfel titlul se animă sub loader).
 
@@ -42,6 +46,14 @@ Valorile de mai jos sunt cele aprobate după testare pe desktop și iPhone. Nu l
 | `cross-reveal` | `top 88%` | `top 26%` | 0.4 |
 | `title-pass` (fiecare card) | `top bottom` | `bottom top` | true |
 | `stack-cards` (trigger: cardul următor) | `top bottom` | `top 15%` | true |
+| `chars-flip` | `top 85%` | o dată (sau invers la urcare cu `data-wm-back="hide"`) | nu |
+| `slide-reveal` | `top 85%` | o dată | nu |
+| `parallax` img | `top bottom` | `bottom top` | 0.5 |
+| `parallax` block | `top 125%` | `bottom -25%` | 0.5 |
+| `dive-in` | `top top` | `bottom bottom` (secțiune de 4 ecrane, conținut sticky) | true |
+| `window-merge` | `top top` | `bottom bottom` (3 ecrane: 50% aliniere, 10% unire, 40% zoom) | true |
+| `cloud-drift` (imaginea de dedesubt) | `top bottom` | `bottom bottom` | 0.25 |
+| `frame-close` | `bottom bottom` | `bottom top` | 0.5 |
 | `fan-emerge` deschidere | `top 45%` | `bottom top` | 0.6 |
 
 Reguli: titlurile nu pornesc prea devreme (sub ~80% din ecran) și nici prea repede; scrub-ul legat de scroll trebuie să aibă drum lung, ca mișcarea să se vadă.
@@ -55,4 +67,11 @@ Reguli: titlurile nu pornesc prea devreme (sub ~80% din ecran) și nici prea rep
 - `cross-reveal`: 16px de la margine, imaginea de la 1,7 la 1, crucea dispare pe ultimele 8% din drum.
 - `title-pass`: y de la +depth × k la −depth × k, cu k = 90 (desktop) și 30 (mobil).
 - `stack-cards`: top 16px + i × 10px, cardul de dedesubt scade la 0,93.
+- `chars-flip`: rotateY 90° → 0, yPercent 50 → 0.
+- `slide-reveal`: mască `polygon(100% 0, 100% 0, 101% 100%, 125% 100%)` → dreptunghi plin; imaginea scale 1,5 → 1, xPercent 25 → 0.
+- `parallax`: img ±15% (scale 1,3), block ±10%.
+- `dive-in`: textul urcă 90% din ecran, imaginea 12%; zoom 1 → 2 din 50% 75%; cercul urcă de jos până la 30% din ecran; spațiul dintre cuvinte 0 → 4em.
+- `window-merge`: ferestre 22–49% și 51–78% pe lățime, decalate (26–90% și 10–74%) → aliniate la 18–82% → unite → zoom 1,84; decorul iese în lateral cu 50%.
+- `cloud-drift`: viteze tipice 60, 52, 43 px/s; topire 288px; imaginea 1,15 → 1.
+- `frame-close`: inset 0 → 8% 22% (desktop), 4% 32% (mobil); secțiunea următoare 0,75 → 1.
 - Plutire: ±2px / ±1° (insigne), ±5px / ±1,5° (carduri fan pe mobil).

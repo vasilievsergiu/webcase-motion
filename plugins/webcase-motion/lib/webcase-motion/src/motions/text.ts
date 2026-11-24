@@ -1,5 +1,5 @@
 import { gsap, $$, opt } from "../core/env";
-import { EASE, EXPO, WIPE_UP, WIPE_UP_TO, WIPE_LR, WIPE_LR_TO } from "../core/tokens";
+import { EASE, EXPO, SOFT, WIPE_UP, WIPE_UP_TO, WIPE_LR, WIPE_LR_TO } from "../core/tokens";
 import { safeSplit, splitBroken, revertLater } from "../core/split";
 
 /** Apariția textului întreg (fallback): mască de jos în sus, fără fade. */
@@ -285,6 +285,37 @@ export function textSwap(el: HTMLElement) {
   }).observe(el);
 }
 
+/**
+ * chars-flip: literele titlului se întorc pe rând, ca niște cărți de joc
+ * (rotateY 90° → 0) și urcă puțin (50%). Fără fade: din profil litera e
+ * oricum invizibilă. Ritm „soft”: 1,2s, 0,05s între litere.
+ * Opțiuni: data-wm-start="top 85%"
+ *          data-wm-back="hide" (dispare când urci înapoi, reapare la coborâre)
+ */
+export function charsFlip(el: HTMLElement) {
+  const start = opt(el, "start", "top 85%");
+  const back = opt(el, "back", "") === "hide";
+  safeSplit(el, {
+    type: "words,chars",
+    wordsClass: "wm-flip-w",
+    charsClass: "wm-flip-ch",
+    autoSplit: true,
+    onSplit: (self) =>
+      gsap.fromTo(
+        self.chars,
+        { rotationY: 90, yPercent: 50 },
+        {
+          rotationY: 0,
+          yPercent: 0,
+          duration: 1.2,
+          ease: SOFT,
+          stagger: 0.05,
+          scrollTrigger: { trigger: el, start, toggleActions: back ? "play none none reverse" : "play none none none" },
+        },
+      ),
+  });
+}
+
 /** Pentru elementele marcate pe pagină. */
 export function initText(scope: ParentNode = document) {
   $$("[data-motion='split-lines']", scope).forEach(splitLines);
@@ -294,5 +325,6 @@ export function initText(scope: ParentNode = document) {
   $$("[data-motion='rows-wipe']", scope).forEach(rowsWipe);
   $$("[data-motion='land-from-right']", scope).forEach(landFromRight);
   $$("[data-motion='text-swap']", scope).forEach(textSwap);
+  $$("[data-motion='chars-flip']", scope).forEach(charsFlip);
 }
 
