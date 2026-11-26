@@ -43,8 +43,16 @@ export function crossReveal(box: HTMLElement) {
     const x = gap + (w - gap) * state.p;
     const y = gap + (ht - gap) * state.p;
     const o = gap * (1 - state.p);
+    /* Masca se calculează în coordonatele pozei, nu ale cadrului: poza poate fi
+       mai mare decât cadrul (carusel cu înălțime fixă, padding), iar colțul ei
+       trebuie să stea exact la întâlnirea liniilor. */
+    const cx = clip.offsetLeft;
+    const cy = clip.offsetTop;
+    const px = (n: number) => `${Math.max(0, n)}px`;
     clip.style.clipPath =
-      state.p >= 0.995 ? "none" : `inset(${o}px ${Math.max(0, w - x)}px ${Math.max(0, ht - y)}px ${o}px)`;
+      state.p >= 0.995
+        ? "none"
+        : `inset(${px(o - cy)} ${px(clip.offsetWidth - (x - cx))} ${px(clip.offsetHeight - (y - cy))} ${px(o - cx)})`;
     v.style.transform = `translate3d(${x}px, 0, 0)`;
     h.style.transform = `translate3d(0, ${y}px, 0)`;
     cursor.style.transform = `translate3d(${x}px, ${y}px, 0)`;

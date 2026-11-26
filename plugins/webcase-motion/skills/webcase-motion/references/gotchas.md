@@ -18,6 +18,7 @@ Fiecare punct de mai jos a fost un bug real, văzut pe iPhone sau desktop.
 11. Titluri care vin din lateral (`split-sides`) → `overflow: clip` pe secțiune, altfel apare scroll orizontal.
 11a. **Sticky (`title-pass`, `stack-cards`) nu merge** dacă un părinte are `overflow: hidden` sau `auto`. Folosește `overflow: clip`, care taie la fel, dar nu creează un container de scroll.
 11b. **Cardurile sticky pe ecrane joase** (telefon în landscape, înălțime ≤ 480px) acoperă tot ecranul și blochează citirea: `stack-cards` le lasă statice acolo.
+11c. **`cross-reveal` într-un cadru mai mic decât poza** (carusel cu înălțime fixă, padding): masca se calculează în coordonatele pozei, altfel colțul ei rămâne sub linie cu cât e poza mai mare decât cadrul. Din 1.3.2 biblioteca face asta singură; nu repara cu offseturi în CSS.
 
 ## Slidere
 12. **Scroll-snap + transform pe slotul de snap = buclă infinită** (sliderul „se mișcă singur la nesfârșit”). Slotul (`li`) face snap și nu se mișcă; transformi doar cardul din interior.

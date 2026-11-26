@@ -7,7 +7,7 @@
       "name": "webcase-motion",
       "source": "./plugins/webcase-motion",
       "description": "Animații web în stilul Webcase (GSAP + Lenis): biblioteca, catalogul și regulile, plus comanda /webcase-motion:add.",
-      "version": "1.3.1",
+      "version": "1.3.2",
       "category": "design"
     }
   ]
